@@ -1,5 +1,6 @@
 package com.restdemo;
 
+import com.middleware.Price;
 import com.middleware.PriceStore;
 import com.middleware.Prices;
 import org.glassfish.grizzly.http.server.HttpServer;
@@ -10,7 +11,9 @@ import java.io.IOException;
 import java.net.URI;
 
 /**
- * Created by kevin on 02/03/2016.
+ * Simple REST Server for Demo.
+ *
+ * @Author  Kevin
  */
 public class Main {
     // Base URI the Grizzly HTTP server will listen on
@@ -32,11 +35,24 @@ public class Main {
     }
 
     /**
+     * Add a few basic prices to play with
+     */
+    public static void initializeSamplePrices() {
+        STORE.addPrice(new Price("Vendor1", "Inst1", 25.6));
+        STORE.addPrice(new Price("Vendor2", "Inst1", 25.7));
+        STORE.addPrice(new Price("Vendor3", "Inst1", 24.2));
+        STORE.addPrice(new Price("Vendor1", "Inst2", 10.2));
+        STORE.addPrice(new Price("Vendor1", "Inst3", 43.6));
+        STORE.addPrice(new Price("Vendor3", "Inst3", 43.3));
+    }
+
+    /**
      * Main method.
-     * @param args
+     * @param args Command Line Args
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
+        initializeSamplePrices();
         final HttpServer server = startServer();
         System.out.println(String.format("Jersey app started with WADL available at "
                 + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
