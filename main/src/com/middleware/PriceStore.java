@@ -1,10 +1,11 @@
 package com.middleware;
 
+import com.middleware.datastore.LocalPriceStore;
+import com.middleware.datastore.PriceStoreDAO;
+
 import java.time.Instant;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 
 /**
  * Concrete implementation of an in memory Price Store. It manages the in memory set
@@ -26,14 +27,32 @@ import java.util.stream.Collectors;
 public enum PriceStore implements Prices {
 
     // Single enum representing the Singleton instance.
-    INSTANCE;
+    INSTANCE (new LocalPriceStore());
 
     static int DAYS_TO_LIVE = 30; //default
 
-    private Set<Price> prices = (new ConcurrentHashMap<Price, Object>()).newKeySet();
+    private PriceStoreDAO prices;// = new LocalPriceStore();
     private VendorRequests vendorPrices = new VendorRequests(this);
     private InstrumentRequests instrumentPrices = new InstrumentRequests(this);
     private ScheduledFuture expirer;
+
+
+    PriceStore() {
+    }
+
+    public PriceStoreDAO getPrices() {
+        return prices;
+    }
+
+    public void setPrices(PriceStoreDAO prices) {
+        this.prices = prices;
+    }
+
+
+
+    PriceStore(PriceStoreDAO prices) {
+        this.prices = prices;
+    }
 
     /**
      * Add a price to the store overwriting any older matching examples.
@@ -41,8 +60,7 @@ public enum PriceStore implements Prices {
      * @param price
      */
     public void addPrice(Price price) {
-        prices.remove(price);
-        prices.add(price);
+        prices.addPrice(price);
         vendorPrices.invalidatePrice(price);
         instrumentPrices.invalidatePrice(price);
     }
@@ -55,10 +73,7 @@ public enum PriceStore implements Prices {
      * @return Set
      */
     public Set<Price> prices(String id, PriceIdentifier identifier) {
-        Set<Price> prices = this.prices.stream()
-                .filter(price -> Objects.equals(identifier.getPriceKey(price), id))
-                .collect(Collectors.toSet());
-        return prices;
+        return prices.prices(id, identifier);
     }
 
     /**
@@ -67,10 +82,7 @@ public enum PriceStore implements Prices {
      * @param reference Reference Instant (normally now)
      */
     protected void expirePrices(Instant reference) {
-        Set<Price> expiredPrices = this.prices.stream()
-                .filter(price -> price.isExpired(reference, DAYS_TO_LIVE))
-                .collect(Collectors.toSet());
-        this.prices.removeAll(expiredPrices);
+        Set<Price> expiredPrices = prices.expirePrices(reference, DAYS_TO_LIVE);
         for (Price price : expiredPrices) {
             instrumentPrices.invalidatePrice(price);
             vendorPrices.invalidatePrice(price);

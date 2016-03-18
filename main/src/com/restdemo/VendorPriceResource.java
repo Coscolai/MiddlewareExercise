@@ -4,6 +4,7 @@ import com.middleware.Price;
 import com.middleware.PriceStore;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.Set;
 
 /**

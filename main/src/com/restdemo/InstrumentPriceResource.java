@@ -4,6 +4,7 @@ import com.middleware.Price;
 import com.middleware.PriceStore;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.Set;
 
 /**
@@ -11,6 +12,7 @@ import java.util.Set;
  */
 @Path("/fetch/instrument")
 public class InstrumentPriceResource extends PriceResource {
+
     Set<Price> getPrices(@PathParam("priceId") String priceId) {
         return Main.STORE.getInstrumentPrices().requestPrices(priceId);
     }

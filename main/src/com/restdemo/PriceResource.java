@@ -9,7 +9,6 @@ import java.util.Set;
 /**
  * Created by kevin on 02/03/2016.
  */
-@Path("/fetch")
 abstract public class PriceResource {
     @GET
     @Path("/{priceId}")

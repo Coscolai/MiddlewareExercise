@@ -13,9 +13,9 @@ import java.util.Set;
 @Path("/store")
 public class AddPriceResource {
     @PUT
-    @Path("/{priceId}")
-    public void storePrice(@PathParam("priceId") String priceId, @MatrixParam("vendor") String vendor, @MatrixParam("price") String price) {
-        Price newPrice = new Price(vendor, priceId, new Double(price));
+    @Path("/{InstId}")
+    public void storePrice(@PathParam("InstId") String instId, @MatrixParam("vendorId") String vendorId, @MatrixParam("price") String price) {
+        Price newPrice = new Price(vendorId, instId, new Double(price));
         Main.STORE.addPrice(newPrice);
     }
 }
